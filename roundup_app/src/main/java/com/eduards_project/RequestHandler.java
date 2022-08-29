@@ -20,6 +20,7 @@ import java.io.IOException;
 import javax.sound.sampled.SourceDataLine;
 
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 import java.time.LocalDateTime;
 
 public class RequestHandler {
@@ -171,6 +172,43 @@ public class RequestHandler {
         JSONObject obj = new JSONObject(result);
         String savingsGoalUid = obj.getString("savingsGoalUid");
         return savingsGoalUid;
+    }
+
+    public void addToSavingsGoal(String savingsGoalUid, int amount) throws IOException {
+        String result = "";
+        UUID uuid = UUID.randomUUID();
+        String transferUid = uuid.toString();
+        String request_uri = this.BASE_API_URL + "api/v2/account/" +
+                this.ACCOUNT_UID + "/savings-goals/" + savingsGoalUid + "/add-money/" + transferUid;
+
+        HttpPut put = new HttpPut(request_uri);
+
+        // add request headers
+        put.addHeader("Authorization",
+                "Bearer " + this.ACCESS_TOKEN);
+        put.addHeader("Accept", "application/json");
+
+        StringBuilder json = new StringBuilder();
+
+        json.append("{");
+        json.append("\"amount\": {");
+        json.append("\"currency\":\"GBP\",");
+        json.append("\"minorUnits\":" + Integer.toString(amount));
+        json.append("}");
+        json.append("}");
+
+        StringEntity entity = new StringEntity(json.toString(), ContentType.APPLICATION_JSON);
+        put.setEntity(entity);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                CloseableHttpResponse response = httpClient.execute(put)) {
+            System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+
+            result = EntityUtils.toString(response.getEntity());
+        }
+
+        System.out.println(result);
+        JSONObject obj = new JSONObject(result);
     }
 
     static int getRoundupValue(int minorUnits) {
