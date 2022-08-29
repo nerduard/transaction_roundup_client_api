@@ -77,7 +77,7 @@ public class RequestHandler {
                         JSONObject amount_dict = arr.getJSONObject(i).getJSONObject("amount");
                         int amount = amount_dict.getInt("minorUnits");
 
-                        if (direction.equals("IN")) {
+                        if (direction.equals("OUT")) {
                             System.out.println(direction);
                             System.out.println(amount);
                             System.out.println(getRoundupValue(amount));
