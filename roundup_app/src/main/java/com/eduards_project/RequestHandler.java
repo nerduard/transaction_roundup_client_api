@@ -3,7 +3,11 @@ package com.eduards_project;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
@@ -28,7 +32,7 @@ public class RequestHandler {
     public RequestHandler() {
     }
 
-    public int getTransactions() throws IOException {
+    public int getSumOfRoundups() throws IOException {
         // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         // System.out.println(dtf.format(now));
@@ -89,6 +93,84 @@ public class RequestHandler {
         } finally {
             httpClient.close();
         }
+    }
+
+    public int getSavingsGoalListSize() throws IOException {
+
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+
+        try {
+            String request_uri = this.BASE_API_URL + "api/v2/account/" +
+                    this.ACCOUNT_UID + "/savings-goals";
+            HttpGet request = new HttpGet(request_uri);
+
+            // add request headers
+            request.addHeader("Authorization",
+                    "Bearer " + this.ACCESS_TOKEN);
+            request.addHeader("Accept", "application/json");
+
+            CloseableHttpResponse response = httpClient.execute(request);
+
+            try {
+
+                System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+                HttpEntity entity = response.getEntity();
+
+                if (entity != null) {
+                    String result = EntityUtils.toString(entity);
+
+                    System.out.println(result);
+                    JSONObject obj = new JSONObject(result);
+                    JSONArray arr = obj.getJSONArray("savingsGoalList");
+                    return arr.length();
+                }
+            } finally {
+                response.close();
+            }
+        } finally {
+            httpClient.close();
+        }
+        return -1;
+    }
+
+    public String createAndReturnSavingsGoalUid(int target) throws IOException {
+        String result = "";
+        String request_uri = this.BASE_API_URL + "api/v2/account/" +
+                this.ACCOUNT_UID + "/savings-goals";
+
+        HttpPut put = new HttpPut(request_uri);
+
+        // add request headers
+        put.addHeader("Authorization",
+                "Bearer " + this.ACCESS_TOKEN);
+        put.addHeader("Accept", "application/json");
+
+        StringBuilder json = new StringBuilder();
+
+        json.append("{");
+        json.append("\"name\":\"Roundup Demo\",");
+        json.append("\"currency\":\"GBP\",");
+        json.append("\"target\": {");
+        json.append("\"currency\":\"GBP\",");
+        json.append("\"minorUnits\":" + Integer.toString(target));
+        json.append("},");
+        json.append("\"base64EncodedPhoto\":\"string\"");
+        json.append("}");
+
+        StringEntity entity = new StringEntity(json.toString(), ContentType.APPLICATION_JSON);
+        put.setEntity(entity);
+
+        try (CloseableHttpClient httpClient = HttpClients.createDefault();
+                CloseableHttpResponse response = httpClient.execute(put)) {
+            System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+
+            result = EntityUtils.toString(response.getEntity());
+        }
+
+        System.out.println(result);
+        JSONObject obj = new JSONObject(result);
+        String savingsGoalUid = obj.getString("savingsGoalUid");
+        return savingsGoalUid;
     }
 
     static int getRoundupValue(int minorUnits) {
