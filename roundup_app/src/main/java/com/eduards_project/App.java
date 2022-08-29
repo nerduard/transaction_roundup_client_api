@@ -1,3 +1,6 @@
+// App designed by Eduard Vasilescu | eduard@vasy.co
+// Version: 0.1
+
 package com.eduards_project;
 
 import java.io.IOException;
