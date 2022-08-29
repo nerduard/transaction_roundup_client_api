@@ -1,9 +1,7 @@
 package com.eduards_project;
 
 import org.apache.http.HttpEntity;
-import org.apache.http.HttpHeaders;
 import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.entity.ContentType;
@@ -17,15 +15,12 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
-import javax.sound.sampled.SourceDataLine;
-
-import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 import java.time.LocalDateTime;
 
 public class RequestHandler {
     final String BASE_API_URL = "https://api-sandbox.starlingbank.com/";
-    final String ACCESS_TOKEN = "eyJhbGciOiJQUzI1NiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAA_31Uy5LbIBD8lS2dly3JlvW65ZYfyAcMMNiUEVCAvNlK5d-DBLIsryvH6Z5HNzPSn0J6XwwFWEk4jubDB3BK6jMFff1gZizeCz_RmIFNTQUyJEA5kLrvGgJH7AnCiQHv-ZGCiMn42xZD1TRV27dVW74XEkIGqrKdAWDMTDr8NIqj-yV57M2quuuq2LvlgpO6pRWhp74jJfJTWZetYB2PvYO5ok4VfVfTA2UtaZqyInXTnkjX1xDV0J5V4tR2dK6Itn4wht6nqmOUXsKhIa3oW1KzqowejhXpWS-OvDz05amdDTNjcX6UpJQwZTzywSHwtxW7LPKJhhFfEuHLPhGSow5SSHR7XEkfdkgOOHdR-IBchnuQmBCAXUa8Z27xp5MB32AKF-Okj2skUnN5k3wClZIpKNAsS2PgOGFGB2dUGjQjmTNaSDdCkEYTI4iYNPd3yt-nr0EazSYfzLhaxBFkbqwwCtHnAaxVX_doyRpBcwg4cFQYW6xh5twVw2zEOhToMGr3_6OSjMRZBfGmpA54douPx8LvZC5Fxy6wuhsxQFQDA4vhwuZ4MWXhC3GlUpBNpGBLInKEc_aUgTjZ6XUtKf-BDg60B7apjjChk7oO63ZxgzYFKd5EpHhtMN9IvLdRhq2nMiyKeOiwAMTMR_KM5ipnhFSrpeRxBy1ZLv4rpA27wO-p9ODL8hyoTHq4xZ16cjabrB2Wze2wb5Xp_WLjVy028kWvjUxN2QX5pJCT_H4ZxhCi38nm0ML6TcUf6HLbxDj-MH6PrnP36It6Yj71HQ-4LJD52zNkucjQRD1z8XHnu1mnPGJL1uNxLft7vrbi7z9YF1ByGQYAAA.nAiS1ismBBLbzAxF7Kk9E49hLdWISaQYLfsOEBBvvif-UovuADhqBPTWB9PTRgh9ETbjaidy2MFAjnNbXCJDF4X9OxpjPlezMbXc37P4McXINsGBs2XKnhqC6G87YO9WwGZMMGDSDXdu1Db7YeNHz_6uwSdC5uHFadNo5JkgOW3rbLPP-8Zj0GXMwLsKTf5XBi9yNLss5QB4welZ-KlSZDeWkOQY_RBuJc95yOueyUD7G-U6Jb_RskAy_c39FQcU_mWjIhjTn1OeITQryT3QkTu_9J_6Zua7FNfyrmXMiP1g1fPub0TwVf9BtIDNMr6GgPoirfPLmM5G6mcFV85NSzlERJLEC7BHIWlgITMwL_EV_nJGrPlmZKoQzZZXQJuGRd24rI5NWJt3SEj6vhPNpmen0nc7o-y-lbBs5K4lCfx_adUhCbFin0h4sAb0c4rSEC5nsiBprOpvAuVwGvx7O1yEcB5TG9NsrHzmNu7zIr9EYsF2Tt3I7u4wY1jL5cj6KnQXoyXFa3ZCcis4Sfktg34IJP5R7Lhfe-S9140FucJxOegoSz64n9zC2dOliAOREkdVUNEvD0RQmssUw21MmKqlTnWWgNguojN7aqrT64ou8S6-MxOkROVfyMtaO_f01GOLuoiAYtVx8EBhwUHSz8SaOZLeyIeNKntCHiYcIa0";
+    final String ACCESS_TOKEN = "eyJhbGciOiJQUzI1NiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAA_31Uy5KbMBD8lS3Oqy1YbPO45ZYfyAcMmsFWWUiUJHazlcq_Z0DCGK8rx-meR7dm4E-mvM_aDEYlkAb75gM4rcy5A3N9k3bIXjM_dZxBp0PXkyQBHYI4NPVJQEmNIDhKwAbLDnpOpt9j1hanU1HX9bEoXzMFIQH5ezEDIKWdTPhpNZL7pZB7y-JQ1wX3rrBHcai6QnTHphY54TE_5FUva-TewV7JxIqGSpRFLkVVFbU4dGUvOtmdBKvI6xJOWGLNFWzrh5TkfawqWXoO7ydR9U0lDtyAPZSFaGTTl5i_N_mxmg1LO9L8KFGpkNp6wtYR4MuKXRb5wsBAT4nwNT4QCskE1Stye1wrH3ZIChAdC28JVbgFkQkB5GWgW-YWfzoV6AWmcLFOeV6jUAbVh8IJdEzuQIORSZoEh0JaE5zVcdCMJM6aXrkBgrJG2F70k0F_o_xt-hrE0XLywQ6rRRpApcaaWIg5tzCO-usWLVkDGIRALZImbrGGiXNXCrOR0VFPjli7_x8VZURu1MA3pUygs1t83Bd-J1MpOXmB1d1AAVgNtJLDhU3xYmqEL6KVikEyEYMtSagBzslTAniyM-taYv4dHRwYD3JTzbDoJn1t1-3SBm0KYryJiPHaYL4RvrdBha2ntpJF3HVYAGHnI3lEU5WzvdKrpehxBy1Zjv8Vagy7wO-p-ODL8hzoRHr44J16cbabrB2WzO2wb5Xx_bjxsxYb-aTXRsam8kI4aUKR3i_BFAL7ncYUjrB-U_wDXW5bWId34_foOnePPqkX9tPc8EDLAqX_eIRG7BM0dV46ftz5btYp99iSdX9cy_4ery37-w-s-QVQGQYAAA.fDgQUSb9aAnQYF-as9BmhHK5kEEUIQikfPaqXBHZ_20NT8Bbs9C_dTm8o54DVH__DsdIXAw6h28BLo7aktTTWSL1RA8mtcAtzEwqfcXkbiLlRQHnLFZKM2oKJlKEkSTSi49K7xxnQH7DMjT4zllxsDYToAiTxEUzeNCAWJvqkx-aUxgjiae6qdaPujpP_I-ik8Eb-VkefB2v3H_Fjz4BLDhca904JYa0ypZERLAyxxybKnJDXs0EsVLYAIPYeFfxEm61qwK3sm8NugO8S5-h52kq-lGJLOQJE0yO-5V4YSDs3klg7X9626uwGiaMpCK70yA98BgKiDH6Y3Re3yfsuzwp2wQbuAuLTJ_c8vwEJXG_5z9Dnx7Fm3HGXGkU5G_7K8zCdInPV1_-TdmTiKzNQDp37cnqadtQhgQf2Pp8XLI6zoa2GwYczYMLMPVaCuUmMOkluy41HYM96g9Lg5utrycvvBAPWUTMy_LYGj7QB57YIstSW2RNLz-pUAxQdLpeibx53VFokCiaxERrCGMbkxyiu1vWcuwAcYuXeV8vSr5bA5BryAqtWOoH5MocDh180NHIhPY89a_sqvx9KiQHV7xrsSWKh9hX-IyfNGD5SV2xc2KEwscM_mc1cO_hfu36QbE694ZMMxBJM4bAHa4Iqj_InjQwGYR_waS0OJp3Dd8";
     final String ACCOUNT_HOLDER_UID = "c14881ce-7dfd-47b1-b598-0ed50407fc8d";
     final String ACCOUNT_UID = "591be6c6-d37f-40ae-a9c7-caf1bdc0c4e0";
     final String DEFAULT_CATEGORY = "c131a573-99b3-48c0-b123-318f8d70019a";
@@ -33,10 +28,11 @@ public class RequestHandler {
     public RequestHandler() {
     }
 
+    // retrieves all transactions over the past 7 days
+    // and sums up all roundup values for all transactions
+    // which have gone 'OUT'
     public int getSumOfRoundups() throws IOException {
-        // DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
-        // System.out.println(dtf.format(now));
         LocalDateTime last_week = now.minusDays(7);
         String request_date = formatRequestDate(last_week);
 
@@ -56,12 +52,8 @@ public class RequestHandler {
             CloseableHttpResponse response = httpClient.execute(request);
 
             try {
-
-                // Get HttpResponse Status
-                // System.out.println(response.getProtocolVersion()); // HTTP/1.1
-                // System.out.println(response.getStatusLine().getStatusCode()); // 200
-                // System.out.println(response.getStatusLine().getReasonPhrase()); // OK
-                System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+                System.out.println("Retrieve transactions status: " + response.getStatusLine().toString()); // HTTP/1.1
+                                                                                                            // 200 OK
 
                 int sum_of_roundups = 0;
                 HttpEntity entity = response.getEntity();
@@ -73,16 +65,10 @@ public class RequestHandler {
 
                     for (int i = 0; i < arr.length(); i++) {
                         String direction = arr.getJSONObject(i).getString("direction");
-
                         JSONObject amount_dict = arr.getJSONObject(i).getJSONObject("amount");
                         int amount = amount_dict.getInt("minorUnits");
 
                         if (direction.equals("OUT")) {
-                            System.out.println(direction);
-                            System.out.println(amount);
-                            System.out.println(getRoundupValue(amount));
-                            System.out.println("_____________");
-
                             sum_of_roundups += getRoundupValue(amount);
                         }
                     }
@@ -96,6 +82,10 @@ public class RequestHandler {
         }
     }
 
+    // return number of Savings Goal pots the account
+    // holder has in their current account.
+    // This function does not get called for the
+    // current logic present in App.java
     public int getSavingsGoalListSize() throws IOException {
 
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -134,6 +124,7 @@ public class RequestHandler {
         return -1;
     }
 
+    // Create a new Savings Goal pot and return its UID
     public String createAndReturnSavingsGoalUid(int target) throws IOException {
         String result = "";
         String request_uri = this.BASE_API_URL + "api/v2/account/" +
@@ -163,17 +154,18 @@ public class RequestHandler {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
                 CloseableHttpResponse response = httpClient.execute(put)) {
-            System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+            System.out.println("Create Savings Goal status: " + response.getStatusLine().toString()); // HTTP/1.1 200 OK
 
             result = EntityUtils.toString(response.getEntity());
         }
 
-        System.out.println(result);
         JSONObject obj = new JSONObject(result);
         String savingsGoalUid = obj.getString("savingsGoalUid");
+        System.out.println(savingsGoalUid + " ---> created successfully!");
         return savingsGoalUid;
     }
 
+    // add amount of pence to Savings Goal
     public void addToSavingsGoal(String savingsGoalUid, int amount) throws IOException {
         String result = "";
         UUID uuid = UUID.randomUUID();
@@ -202,15 +194,15 @@ public class RequestHandler {
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault();
                 CloseableHttpResponse response = httpClient.execute(put)) {
-            System.out.println(response.getStatusLine().toString()); // HTTP/1.1 200 OK
+            System.out.println("Add to Savings Goal status: " + response.getStatusLine().toString()); // HTTP/1.1 200 OK
 
             result = EntityUtils.toString(response.getEntity());
         }
 
-        System.out.println(result);
         JSONObject obj = new JSONObject(result);
     }
 
+    // return number of pence to the closest pound
     static int getRoundupValue(int minorUnits) {
         if (minorUnits > 0) {
             int pence = minorUnits % 100;
@@ -225,6 +217,8 @@ public class RequestHandler {
         }
     }
 
+    // format a LocalDateTime object to a date format
+    // compatible with Starling Bank's Open API
     static String formatRequestDate(LocalDateTime input) {
         String request_date = input.getYear() + "-";
         if (input.getMonthValue() >= 10) {
