@@ -7,6 +7,8 @@ This is a simple Starling Bank API client for rounding up all customer transacti
 3. User is prompted to create a new Savings Goal
 4. Sum of roundups gets added to Savings Goal (or not, if user chooses not to)
 
+The entry point for booting up the App is the *main* function in *App.java*. From there onwards, all interactions are done via the Terminal / Command Line.
+
 ### API Setup
 In order for the API to function correctly, the following fields need filling out in *RequestHandler.java*:
 - **ACCESS_TOKEN** -> to be found in the Sandbox Customer area of the Starling Bank Developer portal.
